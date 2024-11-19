@@ -1,0 +1,39 @@
+pip install carla
+
+
+
+
+import carla
+import random
+import time
+
+# Connect to the CARLA server
+client = carla.Client('localhost', 2000)
+client.set_timeout(10.0)
+
+# Get the world
+world = client.get_world()
+
+# Get the blueprint library
+blueprint_library = world.get_blueprint_library()
+
+# Spawn a vehicle
+vehicle_bp = blueprint_library.filter('model3')[0]
+spawn_point = random.choice(world.get_map().get_spawn_points())
+vehicle = world.spawn_actor(vehicle_bp, spawn_point)
+
+# Add a camera sensor
+camera_bp = blueprint_library.find('sensor.camera.rgb')
+camera_transform = carla.Transform(carla.Location(x=1.5, z=2.4))
+camera = world.spawn_actor(camera_bp, camera_transform, attach_to=vehicle)
+
+# Start the simulator
+vehicle.set_autopilot(True)
+
+try:
+    # Simulate for a while
+    time.sleep(15)
+finally:
+    # Destroy actors
+    camera.destroy()
+    vehicle.destroy()
